@@ -11,8 +11,7 @@ export const Navbar = () => {
 
   //estado para guardar el nombre del usuario desde el api/profile 
   const [username, setUserName] = useState("")
-
-  //este useEffect se va a ejecutar cada vez que el usuario vaya a una nueva URL (location), esto es para que se verifique el estado de la autenticación en cada cambio de url 
+ 
   useEffect(() => {
     //función para verificar el perfil 
     const checkProfile = async () => {

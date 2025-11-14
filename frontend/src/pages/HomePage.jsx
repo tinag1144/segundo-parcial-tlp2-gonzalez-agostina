@@ -1,47 +1,89 @@
+import { Loading } from "../components/Loading";
+
 export const HomePage = () => {
   // TODO: Integrar lógica para obtener superhéroes desde la API
   // TODO: Implementar useState para almacenar la lista de superhéroes
   // TODO: Implementar función para recargar superhéroes
+  //estado inicial de tasks, guarda un ARRAY de tareas
+  const [heroes, setHeroes] = useState([]); 
+  const [loading, setLoading] = useState(true);
 
-  // Datos de ejemplo para las cards
-  const superheroes = [
-    {
-      id: 1,
-      superhero: "Superman",
-      image:
-        "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/644-superman.jpg",
-    },
-    {
-      id: 2,
-      superhero: "Batman",
-      image:
-        "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/70-batman.jpg",
-    },
-    {
-      id: 3,
-      superhero: "Wonder Woman",
-      image:
-        "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/720-wonder-woman.jpg",
-    },
-    {
-      id: 4,
-      superhero: "Spider-Man",
-      image:
-        "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/620-spider-man.jpg",
-    },
-    {
-      id: 5,
-      superhero: "Iron Man",
-      image:
-        "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/346-iron-man.jpg",
-    },
-    {
-      id: 6,
-      superhero: "Captain America",
-      image:
-        "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/149-captain-america.jpg",
-    },
-  ];
+  //buscar las tareas de la API 
+  const getHeroes = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/api/superheroes", {
+        method: "GET",
+        credentials: "include", 
+      });
+
+      //si hay un error
+      if (!res.ok) {
+        //actualiza el estado de nuevo a un array vacío 
+        setHeroes([]);
+        return; //return para no continuar 
+      }
+
+      //si todo fue bien, se actualiza el estado con la data 
+      const data = await res.json();
+      setHeroes(data);
+    } catch (error) {
+      console.error("Error obteniendo tareas:", error);
+      
+      setHeroes([]);
+    } finally { //el finally se ejecuta SIEMPRE, sin importar si hubo un error o no, esto es mas que nada para que el estado del loading siempre esté en falso asi no se muestra 
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    //llamamos a la función anterior 
+    getHeroes();
+  }, []); //se ejecuta en el inicio 
+
+  //si loading es true, muestra el componente Loading 
+  if (loading) return <Loading />;
+
+
+
+  
+  // const superheroes = [
+  //   {
+  //     id: 1,
+  //     superhero: "Superman",
+  //     image:
+  //       "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/644-superman.jpg",
+  //   },
+  //   {
+  //     id: 2,
+  //     superhero: "Batman",
+  //     image:
+  //       "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/70-batman.jpg",
+  //   },
+  //   {
+  //     id: 3,
+  //     superhero: "Wonder Woman",
+  //     image:
+  //       "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/720-wonder-woman.jpg",
+  //   },
+  //   {
+  //     id: 4,
+  //     superhero: "Spider-Man",
+  //     image:
+  //       "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/620-spider-man.jpg",
+  //   },
+  //   {
+  //     id: 5,
+  //     superhero: "Iron Man",
+  //     image:
+  //       "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/346-iron-man.jpg",
+  //   },
+  //   {
+  //     id: 6,
+  //     superhero: "Captain America",
+  //     image:
+  //       "https://cdn.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/149-captain-america.jpg",
+  //   },
+  // ];
 
   return (
     <div className="container mx-auto px-4 pb-8">

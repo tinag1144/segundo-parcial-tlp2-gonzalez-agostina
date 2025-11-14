@@ -1,5 +1,6 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useForm } from "../hooks/useForm";
+import { useState } from "react";
 
 export const LoginPage = () => {
 
@@ -8,18 +9,22 @@ export const LoginPage = () => {
   // TODO: Implementar useForm para el manejo del formulario
   // TODO: Implementar función handleSubmit
 
-   // estado para saber si el login fue exitoso
-  const [loggedIn, setLoggedIn] = useState(false);
+  //este estado es para manejar los errores 
+  const [error, setError] = useState(false)
 
-  // useForm para manejar inputs del formulario
+
+   const navigate = useNavigate();
+
   const { formState, handleChange, handleReset } = useForm({
     username: "",
     password: "",
   });
 
-  // función que maneja el submit del formulario
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
 
     try {
       const res = await fetch("http://localhost:3000/api/login", {
@@ -32,44 +37,22 @@ export const LoginPage = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message || "Credenciales inválidas");
+        alert("Credenciales inválidas");
         handleReset();
         return;
       }
 
-      // si llega acá es pq se logró el login exitoso
-      setLoggedIn(true);
-
+      // Si el login es correcto, voy a home
+      navigate("/home");
     } catch (error) {
+      setError(error)
       console.error(error);
       alert("Error en el servidor");
       handleReset();
+    } finally {
+      setLoading(false);
     }
   };
-
-  // si ya inició sesión muestro un mensaje y un Link al Home
-  if (loggedIn) {
-    return (
-      <main className="container d-flex justify-content-center align-items-center min-vh-100">
-        <div className="col-12 col-md-6 col-lg-4">
-          <div className="card shadow p-4 card-soft-pink text-center">
-            <h3 className="fw-bold text-success mb-3">
-              Inicio de sesión realizado
-            </h3>
-
-            <Link
-              to="/home"
-              className="btn btn-primary fw-bold w-100"
-            >
-              Ir al Home
-            </Link>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8">
@@ -80,11 +63,16 @@ export const LoginPage = () => {
         </h2>
 
         {/* TODO: Mostrar este div cuando haya error */}
-        <div className="hidden bg-red-100 text-red-700 p-3 rounded mb-4">
+        {
+          error && ( //si error es true, muestra el div 
+            <div className="hidden bg-red-100 text-red-700 p-3 rounded mb-4">
           <p className="text-sm">
             Credenciales incorrectas. Intenta nuevamente.
           </p>
         </div>
+          )
+        }
+        
 
         <form onSubmit={(event) => {}}>
           <div className="mb-4">
