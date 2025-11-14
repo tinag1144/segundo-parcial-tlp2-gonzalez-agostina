@@ -1,9 +1,75 @@
 import { Link } from "react-router";
+import { useForm } from "../hooks/useForm";
 
 export const LoginPage = () => {
+
+
   // TODO: Integrar lógica de autenticación aquí
   // TODO: Implementar useForm para el manejo del formulario
   // TODO: Implementar función handleSubmit
+
+   // estado para saber si el login fue exitoso
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  // useForm para manejar inputs del formulario
+  const { formState, handleChange, handleReset } = useForm({
+    username: "",
+    password: "",
+  });
+
+  // función que maneja el submit del formulario
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const res = await fetch("http://localhost:3000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(formState),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Credenciales inválidas");
+        handleReset();
+        return;
+      }
+
+      // si llega acá es pq se logró el login exitoso
+      setLoggedIn(true);
+
+    } catch (error) {
+      console.error(error);
+      alert("Error en el servidor");
+      handleReset();
+    }
+  };
+
+  // si ya inició sesión muestro un mensaje y un Link al Home
+  if (loggedIn) {
+    return (
+      <main className="container d-flex justify-content-center align-items-center min-vh-100">
+        <div className="col-12 col-md-6 col-lg-4">
+          <div className="card shadow p-4 card-soft-pink text-center">
+            <h3 className="fw-bold text-success mb-3">
+              Inicio de sesión realizado
+            </h3>
+
+            <Link
+              to="/home"
+              className="btn btn-primary fw-bold w-100"
+            >
+              Ir al Home
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8">
