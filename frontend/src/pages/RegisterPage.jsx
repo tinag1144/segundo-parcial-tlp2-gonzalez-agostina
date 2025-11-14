@@ -1,10 +1,52 @@
 import { Link } from "react-router";
+import { useForm } from "../hooks/useForm";
+import { useState } from "react";
 
 export const RegisterPage = () => {
   // TODO: Integrar lógica de registro aquí
   // TODO: Implementar useForm para el manejo del formulario
   // TODO: Implementar función handleSubmit
 
+  const [error, setError] = useState(false);
+
+  const { formState, handleChange, handleReset } = useForm({
+    username: "",
+    email: "",
+    password: "",
+    name: "",
+    lastname: "",
+  });
+
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // evito que se recargue la página
+
+    try {
+      // hago el POST al backend con los datos del formulario
+      const res = await fetch("http://localhost:3000/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formState),
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      // si la respuesta NO fue ok, muestro el mensaje de error
+      if (!res.ok) {
+        setError(true); // muestro el div de error
+        return;
+      }
+
+      // si llega acá es porque salió todo bien
+      setError(false); // oculto el error (por si estaba activado)
+      alert("Cuenta creada con éxito");
+      handleReset(); // limpio el formulario
+
+    } catch (err) {
+      console.error("Error registrando:", err);
+      setError(true); // muestro error también si el servidor falla
+    }
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8">
       <div className="max-w-lg w-full bg-white rounded-lg shadow-xl p-8">
@@ -13,11 +55,17 @@ export const RegisterPage = () => {
         </h2>
 
         {/* TODO: Mostrar este div cuando haya error */}
-        <div className="hidden bg-red-100 text-red-700 p-3 rounded mb-4">
+        { error && 
+          (
+            <div className="hidden bg-red-100 text-red-700 p-3 rounded mb-4">
           <p className="text-sm">
             Error al crear la cuenta. Intenta nuevamente.
           </p>
         </div>
+        
+          )
+        }
+        
 
         <form onSubmit={(event) => {}}>
           <div className="mb-4">
