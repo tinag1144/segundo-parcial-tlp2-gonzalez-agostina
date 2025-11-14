@@ -68,6 +68,7 @@ export const RegisterPage = () => {
       <div className="max-w-lg w-full bg-white rounded-lg shadow-xl p-8">
         <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
           Crear Cuenta
+          
         </h2>
 
         {/* TODO: Mostrar este div cuando haya error */}
