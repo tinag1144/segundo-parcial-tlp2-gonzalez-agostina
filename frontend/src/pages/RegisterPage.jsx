@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useForm } from "../hooks/useForm";
 import { useState } from "react";
 
@@ -7,46 +7,62 @@ export const RegisterPage = () => {
   // TODO: Implementar useForm para el manejo del formulario
   // TODO: Implementar función handleSubmit
 
-  const [error, setError] = useState(false);
+   const navigate = useNavigate();
+
+   //para manejar errores 
+   const [error, setError] = useState()
 
   const { formState, handleChange, handleReset } = useForm({
     username: "",
     email: "",
     password: "",
-    name: "",
+    firstname: "",
     lastname: "",
+    dni: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (event) => {
-    event.preventDefault(); // evito que se recargue la página
+    event.preventDefault();
+    setLoading(true);
+
+    const payload = {
+      name: formState.firstname,  
+      lastname: formState.lastname,
+      username: formState.username,
+      email: formState.email,
+      password: formState.password,
+    };
+
+    console.log("PAYLOAD ENVIADO DESDE EL FRONT:", payload);
 
     try {
-      // hago el POST al backend con los datos del formulario
       const res = await fetch("http://localhost:3000/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formState),
         credentials: "include",
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
 
-      // si la respuesta NO fue ok, muestro el mensaje de error
       if (!res.ok) {
-        setError(true); // muestro el div de error
+        alert("Error al registrarse");
         return;
       }
 
-      // si llega acá es porque salió todo bien
-      setError(false); // oculto el error (por si estaba activado)
-      alert("Cuenta creada con éxito");
-      handleReset(); // limpio el formulario
-
-    } catch (err) {
-      console.error("Error registrando:", err);
-      setError(true); // muestro error también si el servidor falla
+      alert("Registro exitoso, bienvenida ");
+      handleReset();
+      navigate("/home");
+    } catch (error) {
+      console.error("Error en el registro:", error);
+      setError(error)
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8">
       <div className="max-w-lg w-full bg-white rounded-lg shadow-xl p-8">
@@ -67,7 +83,7 @@ export const RegisterPage = () => {
         }
         
 
-        <form onSubmit={(event) => {}}>
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
               htmlFor="username"
@@ -80,6 +96,8 @@ export const RegisterPage = () => {
               id="username"
               name="username"
               placeholder="Elige un nombre de usuario"
+              value={formState.username}
+              onChange={handleChange}
               className="w-full border border-gray-300 rounded p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
               required
             />
